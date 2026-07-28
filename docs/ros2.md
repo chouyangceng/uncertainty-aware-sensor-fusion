@@ -6,6 +6,19 @@
 
 ## 构建与运行
 
+### 先安装核心 Python 包
+
+ROS 2 适配器会导入仓库中的核心算法包。对一个全新的工作空间，先在仓库根目录执行：
+
+```bash
+cd uncertainty-aware-sensor-fusion
+python3 -m pip install -e .
+```
+
+这样 `uncertainty_sensor_fusion` 会进入当前 Python 环境；随后再构建下面的
+`ament_python` 包。若使用虚拟环境，请在 `source /opt/ros/<distro>/setup.bash`
+之后激活同一个虚拟环境，避免 `ros2 run` 和 `pip` 使用不同的 Python。
+
 在已 source ROS 2 环境的工作空间中：
 
 ```bash
@@ -29,6 +42,19 @@ ros2 launch sensor_fusion_ros fusion.launch.py
 
 参数见 `config/fusion.yaml`，包括栅格大小、分辨率、置信度、跟踪老化阈值和话题名。
 生产传感器驱动可以保留同样的输出接口，只替换节点中的点云解码回调。
+
+## QoS 假设与调优
+
+当前节点使用 ROS 2 默认的 **KeepLast(depth=10)、Reliable、Volatile** QoS：订阅和
+三个发布器均以队列深度 10 创建。该选择适合实验台和本机有线网络，能够保证点流和
+诊断消息按序送达，但在高频 LiDAR 或无线链路上可能增加延迟或触发队列丢弃。
+
+- 传感器驱动若使用 `SensorDataQoS`（BestEffort），需要在节点中把订阅器改成兼容
+  的 `QoSProfile`，否则会出现“有话题但收不到消息”。
+- RViz 通常可用默认 Reliable QoS 订阅 `OccupancyGrid` 和 `MarkerArray`；若只关心
+  最新帧，可将显示端设置为 BestEffort/Volatile 以降低延迟。
+- `depth=10` 是保守起点，不代表实车最优值。请按传感器频率、网络带宽和允许的端到端
+  延迟重新标定，并在 rosbag 回放时记录 QoS 配置。
 
 ## 无 ROS 2 环境
 

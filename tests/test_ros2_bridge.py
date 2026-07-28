@@ -28,6 +28,9 @@ class FakeHeader:
 @dataclass
 class FakeOrigin:
     position: SimpleNamespace = field(default_factory=lambda: SimpleNamespace(x=0.0, y=0.0, z=0.0))
+    orientation: SimpleNamespace = field(
+        default_factory=lambda: SimpleNamespace(x=0.0, y=0.0, z=0.0, w=0.0)
+    )
 
 
 @dataclass
@@ -69,7 +72,10 @@ class FakeMarker:
         self.id = 0
         self.type = 0
         self.action = 0
-        self.pose = SimpleNamespace(position=FakePoint())
+        self.pose = SimpleNamespace(
+            position=FakePoint(),
+            orientation=SimpleNamespace(x=0.0, y=0.0, z=0.0, w=0.0),
+        )
         self.scale = FakeScale()
         self.color = SimpleNamespace(r=0.0, g=0.0, b=0.0, a=0.0)
         self.text = ""
@@ -119,6 +125,7 @@ def test_occupancy_grid_conversion_preserves_layout_and_probability() -> None:
     assert (message.header.stamp.sec, message.header.stamp.nanosec) == (2, 3)
     assert (message.info.width, message.info.height) == (3, 2)
     assert message.info.resolution == 0.5
+    assert message.info.origin.orientation.w == 1.0
     assert len(message.data) == 6
     assert max(message.data) >= 90
     assert min(message.data) == -1  # untouched cells follow ROS's unknown convention
@@ -135,6 +142,7 @@ def test_track_conversion_emits_marker_per_track() -> None:
     marker = message.markers[0]
     assert (marker.id, marker.ns, marker.type) == (7, "tracked_objects", FakeMarker.SPHERE)
     assert (marker.pose.position.x, marker.pose.position.y) == (1.25, -0.5)
+    assert marker.pose.orientation.w == 1.0
     assert marker.text == "id=7 missed=1"
 
 

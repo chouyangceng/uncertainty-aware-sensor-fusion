@@ -86,6 +86,12 @@ def occupancy_grid_to_msg(
     message.info.resolution = float(grid.resolution)
     message.info.origin.position.x = -0.5 * grid.width * grid.resolution
     message.info.origin.position.y = -0.5 * grid.height * grid.resolution
+    # OccupancyGrid origin is a Pose; explicitly publish the identity
+    # quaternion instead of relying on the middleware's default initialization.
+    message.info.origin.orientation.x = 0.0
+    message.info.origin.orientation.y = 0.0
+    message.info.origin.orientation.z = 0.0
+    message.info.origin.orientation.w = 1.0
     probabilities = grid.to_numpy().reshape(-1)
     message.data = [
         (-1 if abs(float(value) - 0.5) < 1e-12 else int(np.rint(value * 100)))
@@ -115,6 +121,11 @@ def tracks_to_marker_array(
         marker.pose.position.x = float(track.x)
         marker.pose.position.y = float(track.y)
         marker.pose.position.z = 0.0
+        # Markers are axis-aligned spheres, so use a valid identity quaternion.
+        marker.pose.orientation.x = 0.0
+        marker.pose.orientation.y = 0.0
+        marker.pose.orientation.z = 0.0
+        marker.pose.orientation.w = 1.0
         marker.scale.x = marker.scale.y = marker.scale.z = 0.8
         marker.color.r, marker.color.g, marker.color.b, marker.color.a = 0.15, 0.65, 1.0, 0.85
         marker.text = f"id={track.track_id} missed={track.missed}"
