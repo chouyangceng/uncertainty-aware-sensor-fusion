@@ -1,0 +1,12 @@
+geometry:
+  lidar_to_camera: identity
+  camera_intrinsic: [[800.0, 0.0, 640.0], [0.0, 800.0, 360.0], [0.0, 0.0, 1.0]]
+synchronization:
+  max_delay: 0.05
+  max_lag: 20
+tracking:
+  max_age: 3
+  gate_threshold: 9.21
+reliability:
+  window: 10
+  healthy_threshold: 0.5

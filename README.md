@@ -43,3 +43,9 @@
 ## License
 
 Apache-2.0
+
+## 高级可靠性感知基准
+
+    python examples/advanced_benchmark.py
+
+高级示例会运行在线外参修正、延迟估计、BEV 占据栅格、多目标轨迹管理和传感器健康度更新。新增代码包括 `calibration/online.py`、`synchronization/latency.py`、`fusion/occupancy.py`、`tracking/manager.py` 和 `reliability/manager.py`。
