@@ -44,6 +44,14 @@
 
 Apache-2.0
 
+## ROS 2 可选接口
+
+仓库提供独立的 `ros2/sensor_fusion_ros` ament_python 包，将核心融合结果转换为标准
+`nav_msgs/OccupancyGrid`、`visualization_msgs/MarkerArray` 和
+`diagnostic_msgs/DiagnosticArray`。完整构建命令、话题、参数和无 ROS 2 回退说明见
+[`docs/ros2.md`](docs/ros2.md)。ROS 2 与 `rclpy` 不在核心依赖中，普通 Python 环境仍可
+直接运行全部实验和测试。
+
 ## 高级可靠性感知基准
 
     python examples/advanced_benchmark.py

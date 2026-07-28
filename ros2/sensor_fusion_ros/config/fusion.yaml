@@ -1,0 +1,14 @@
+uncertainty_sensor_fusion:
+  ros__parameters:
+    frame_id: base_link
+    grid_width: 80
+    grid_height: 80
+    grid_resolution: 0.2
+    point_confidence: 0.7
+    health_window: 10
+    health_threshold: 0.5
+    max_track_age: 3
+    input_topic: /fusion/points
+    grid_topic: /fusion/occupancy_grid
+    tracks_topic: /fusion/tracks
+    diagnostics_topic: /fusion/diagnostics
