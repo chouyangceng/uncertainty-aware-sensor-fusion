@@ -17,5 +17,5 @@ if __name__ == "__main__":
     health.update("lidar", False)
     tracker = MultiObjectTracker(max_age=3)
     tracks = tracker.update([{"id": 1, "x": 4.0, "y": 1.0}], timestamp=0.0)
-    latency = estimate_latency(np.array([0.0, 1.0, 0.0]), np.array([0.0, 0.0, 1.0]), 0.05, 2)
+    latency = estimate_latency(np.array([0.0, 1.0, 0.0, -1.0, 0.0]), np.array([0.0, 0.0, 1.0, 0.0, -1.0]), 0.05, 3)
     print({"translation": calibrator.translation.tolist(), "occupied": grid.probability(1.0, 1.0), "health": health.report(), "tracks": tracks, "latency": latency})
