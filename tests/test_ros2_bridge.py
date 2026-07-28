@@ -64,6 +64,7 @@ class FakeScale:
 
 class FakeMarker:
     ADD = 0
+    DELETE = 2
     SPHERE = 2
 
     def __init__(self) -> None:
@@ -144,6 +145,23 @@ def test_track_conversion_emits_marker_per_track() -> None:
     assert (marker.pose.position.x, marker.pose.position.y) == (1.25, -0.5)
     assert marker.pose.orientation.w == 1.0
     assert marker.text == "id=7 missed=1"
+
+
+def test_track_conversion_deletes_markers_that_disappeared() -> None:
+    message = bridge.tracks_to_marker_array(
+        [],
+        deleted_track_ids={3, 9},
+        frame_id="base_link",
+        stamp=FakeStamp(5),
+        message_types=FAKE_TYPES,
+    )
+
+    assert [(marker.id, marker.action) for marker in message.markers] == [
+        (3, FakeMarker.DELETE),
+        (9, FakeMarker.DELETE),
+    ]
+    assert all(marker.ns == "tracked_objects" for marker in message.markers)
+    assert all(marker.header.stamp.sec == 5 for marker in message.markers)
 
 
 def test_health_conversion_maps_status_levels_and_scores() -> None:

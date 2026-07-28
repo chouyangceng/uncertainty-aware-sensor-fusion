@@ -5,6 +5,7 @@ uncertainty_sensor_fusion:
     grid_height: 80
     grid_resolution: 0.2
     point_confidence: 0.7
+    association_gate: 2.0
     health_window: 10
     health_threshold: 0.5
     max_track_age: 3

@@ -103,19 +103,22 @@ def occupancy_grid_to_msg(
 def tracks_to_marker_array(
     tracks: Iterable[ManagedTrack],
     *,
+    deleted_track_ids: Iterable[int] = (),
     frame_id: str = "base_link",
     stamp: Any | None = None,
     message_types: MessageTypes | None = None,
 ) -> Any:
-    """Convert tracked objects to a ``visualization_msgs/MarkerArray``."""
+    """Convert tracked objects and stale IDs to a ROS marker update."""
 
     types = _types_or_load(message_types)
     message = types.marker_array()
+    active_ids: set[int] = set()
     for track in tracks:
         marker = types.marker()
         _set_header(marker, frame_id, stamp)
         marker.ns = "tracked_objects"
         marker.id = int(track.track_id)
+        active_ids.add(marker.id)
         marker.type = getattr(types.marker, "SPHERE", 2)
         marker.action = getattr(types.marker, "ADD", 0)
         marker.pose.position.x = float(track.x)
@@ -129,6 +132,13 @@ def tracks_to_marker_array(
         marker.scale.x = marker.scale.y = marker.scale.z = 0.8
         marker.color.r, marker.color.g, marker.color.b, marker.color.a = 0.15, 0.65, 1.0, 0.85
         marker.text = f"id={track.track_id} missed={track.missed}"
+        message.markers.append(marker)
+    for track_id in sorted(set(map(int, deleted_track_ids)) - active_ids):
+        marker = types.marker()
+        _set_header(marker, frame_id, stamp)
+        marker.ns = "tracked_objects"
+        marker.id = track_id
+        marker.action = getattr(types.marker, "DELETE", 2)
         message.markers.append(marker)
     return message
 

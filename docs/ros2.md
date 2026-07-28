@@ -32,7 +32,13 @@ ros2 launch sensor_fusion_ros fusion.launch.py
 
 节点订阅 `std_msgs/msg/Float64MultiArray`，数据按
 `[x0, y0, x1, y1, ...]` 解释为当前坐标系下的二维点。默认话题为
-`/fusion/points`。它发布以下标准 ROS 消息：
+`/fusion/points`。输入格式本身**不携带目标 ID**，节点使用带距离门限的确定性贪心
+最近邻方法，将当前点与上一帧轨迹关联；点的数组顺序改变不会直接导致 ID 对调。
+未匹配点获得单调递增的新 ID，超过 `association_gate` 的点不会强行关联。该轻量方法
+适合教学和低密度目标；遮挡、交叉运动或高密度交通场景应替换为匈牙利匹配、运动预测
+或传感器原生对象 ID。
+
+它发布以下标准 ROS 消息：
 
 | 话题 | 消息 | 内容 |
 | --- | --- | --- |
@@ -40,8 +46,13 @@ ros2 launch sensor_fusion_ros fusion.launch.py
 | `/fusion/tracks` | `visualization_msgs/msg/MarkerArray` | 多目标跟踪结果，可在 RViz 中显示 |
 | `/fusion/diagnostics` | `diagnostic_msgs/msg/DiagnosticArray` | 点流健康度和降级状态 |
 
-参数见 `config/fusion.yaml`，包括栅格大小、分辨率、置信度、跟踪老化阈值和话题名。
+参数见 `config/fusion.yaml`，包括栅格大小、分辨率、置信度、关联门限、跟踪老化阈值
+和话题名。启动时会校验栅格尺寸与分辨率为正、`point_confidence` 严格位于 `(0, 1)`、
+`association_gate` 为正；非法参数会让节点立即报错，避免带错误配置运行。
 生产传感器驱动可以保留同样的输出接口，只替换节点中的点云解码回调。
+
+节点会记录上一轮已发布的 Marker ID。当轨迹超过 `max_track_age` 被移除时，下一条
+`MarkerArray` 会包含相同命名空间和 ID 的 `DELETE` 动作，避免 RViz 留下幽灵目标。
 
 ## QoS 假设与调优
 
