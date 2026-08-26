@@ -59,3 +59,11 @@ Apache-2.0
 高级示例会运行在线外参修正、延迟估计、BEV 占据栅格、多目标轨迹管理和传感器健康度更新。新增代码包括 `calibration/online.py`、`synchronization/latency.py`、`fusion/occupancy.py`、`tracking/manager.py` 和 `reliability/manager.py`。
 
 `NormalizedInnovationMonitor` 用创新及其协方差计算 NIS；连续超限才降级、连续正常才恢复，避免单帧离群值导致健康状态抖动。输入协方差必须是有限、对称正定矩阵。
+
+## 协方差是否可信：NEES 校准研究
+
+```bash
+python experiments/uncertainty_calibration.py --fast --seed 7
+```
+
+该实验在同一批二维位置误差上对比正确协方差、低报 40%、保守 200% 和忽略相关项四种场景，报告平均 NEES、名义置信椭圆的真实覆盖率和校准误差，并生成校准曲线、NEES 分布及白化残差图。完整方法与科研边界见 [`docs/uncertainty_calibration.md`](docs/uncertainty_calibration.md)。
