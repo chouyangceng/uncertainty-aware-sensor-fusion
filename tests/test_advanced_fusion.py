@@ -47,3 +47,26 @@ def test_sensor_health_manager_degrades_after_invalid_frames():
     report = manager.report()
     assert report["lidar"].score < report["camera"].score
     assert report["lidar"].healthy is False
+
+
+def test_innovation_monitor_uses_hysteresis_for_failure_and_recovery():
+    from uncertainty_sensor_fusion.reliability.manager import NormalizedInnovationMonitor
+
+    monitor = NormalizedInnovationMonitor(threshold=5.0, failure_count=2, recovery_count=2)
+    covariance = np.eye(2)
+    assert monitor.update(np.array([3.0, 0.0]), covariance).healthy
+    failed = monitor.update(np.array([3.0, 0.0]), covariance)
+    assert failed.nis == 9.0
+    assert not failed.healthy
+    assert not monitor.update(np.zeros(2), covariance).healthy
+    assert monitor.update(np.zeros(2), covariance).healthy
+
+
+def test_innovation_monitor_rejects_invalid_covariance():
+    import pytest
+
+    from uncertainty_sensor_fusion.reliability.manager import NormalizedInnovationMonitor
+
+    monitor = NormalizedInnovationMonitor(threshold=5.0)
+    with pytest.raises(ValueError, match="positive definite"):
+        monitor.update(np.ones(2), np.array([[1.0, 0.0], [0.0, 0.0]]))

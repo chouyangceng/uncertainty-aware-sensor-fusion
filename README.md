@@ -22,7 +22,7 @@
 - `synchronization/`：带乱序检查的时间缓存；
 - `fusion/`：带来源和置信度的目标级几何融合；
 - `tracking/`：带马氏距离门控的 Kalman 跟踪；
-- `reliability/`：协方差权重和传感器健康度；
+- `reliability/`：协方差权重、传感器健康度和归一化创新平方（NIS）一致性监控；
 - `experiments/`：确定性的传感器故障实验。
 
 ## 研究问题
@@ -57,3 +57,5 @@ Apache-2.0
     python examples/advanced_benchmark.py
 
 高级示例会运行在线外参修正、延迟估计、BEV 占据栅格、多目标轨迹管理和传感器健康度更新。新增代码包括 `calibration/online.py`、`synchronization/latency.py`、`fusion/occupancy.py`、`tracking/manager.py` 和 `reliability/manager.py`。
+
+`NormalizedInnovationMonitor` 用创新及其协方差计算 NIS；连续超限才降级、连续正常才恢复，避免单帧离群值导致健康状态抖动。输入协方差必须是有限、对称正定矩阵。
